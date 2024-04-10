@@ -1,0 +1,168 @@
+---
+title: "HW_5_Durinyan"
+output: html_document
+date: "2024-04-08"
+---
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(lme4)
+library(lmerTest)
+library(car)
+library(survival)
+library(ggsurvfit)
+library(survminer)
+```
+
+```{r}
+data <- read_csv('wisconsin_breast_cancer.csv')
+```
+
+```{r}
+sum(is.na(data))
+```
+последняя колонка вся пропущена и не несет ценности, удаляем ее
+```{r}
+data <- data[, -ncol(data)]
+```
+
+```{r}
+sum(is.na(data))
+```
+
+```{r}
+head(data)
+```
+
+переведем значения в diagnosis в факториальные
+
+```{r}
+data <- data %>% 
+  mutate(diagnosis = as.factor(diagnosis))
+head(data)
+```
+
+```{r}
+summary(data$diagnosis)
+```
+
+```{r}
+summary(data$radius_mean)
+summary(data$area_mean)
+summary(data$perimeter_mean)
+summary(data$symmetry_mean)
+```
+
+Проверка на нормальность распределения данных 
+```{r}
+shapiro.test(residuals(model))
+```
+Данные распределены ненормально.
+
+
+### Задание 1
+
+Создайте регрессионную модель, которая бы описывала связь среднего радиуса опухоли и средней площади (а), среднего периметра (б), средней симметричности (в).
+
+Постройте графики, на которых отразите регрессионную прямую, и прокомментируйте свои находки.
+
+```{r}
+# Создаем модель регрессии
+model <- lm(radius_mean ~ area_mean + perimeter_mean + symmetry_mean, data = data)
+
+# Выводим коэффициенты модели
+summary(model)
+```
+
+
+```{r}
+# Строим график для каждой пары переменных
+ggplot(data, aes(x = area_mean, y = radius_mean)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Зависимость средней площади и среднего радиуса опухоли",
+       x = 'Средняя площадь опухоли',
+       y = 'Средний радиус опухоли') + 
+    theme(plot.title = element_text(hjust = 0.5), 
+        panel.background = element_blank(), 
+        axis.line = element_line(linewidth = 2, colour = "grey")
+        )
+```
+
+
+```{r}
+# Строим график для каждой пары переменных
+ggplot(data, aes(x = perimeter_mean, y = radius_mean)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Зависимость средней площади и среднего радиуса опухоли",
+       x = 'Средний периметр опухоли',
+       y = 'Средний радиус опухоли') + 
+    theme(plot.title = element_text(hjust = 0.5), 
+        panel.background = element_blank(), 
+        axis.line = element_line(linewidth = 2, colour = "grey")
+        )
+```
+
+```{r}
+# Строим график для каждой пары переменных
+ggplot(data, aes(x = symmetry_mean, y = radius_mean)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Зависимость среднего периметра и среднего радиуса опухоли",
+       x = 'Средний симметричность опухоли',
+       y = 'Средний радиус опухоли') + 
+    theme(plot.title = element_text(hjust = 0.5), 
+        panel.background = element_blank(), 
+        axis.line = element_line(linewidth = 2, colour = "grey")
+        )
+```
+
+Имеется прямая зависимость между размером опухоли и проверяемыми переменнымия
+
+
+### Задание 2
+
+Пусть колонка с диагнозом принимает следующие значения: злокачественная опухоль — 1, а доброкачественная — 0. 
+
+```{r}
+data$diagnosis <- ifelse(data$diagnosis == "M", 1, 0)
+head(data)
+```
+
+
+Постройте модель, которая бы прогнозировала вероятность возникновения злокачественной опухоли от среднего радиуса (а), средней площади (б), средней текстуры (в).
+
+```{r}
+model2 <- glm(diagnosis ~ radius_mean + area_mean + texture_mean, data = data, family = 'binomial')
+summary(model2)
+```
+
+
+
+Постройте графики. Создайте модель, которая бы прогнозировала вероятность возникновения злокачественной опухоли от всех трех перечисленных факторов.
+
+```{r}
+ggplot(data, aes(x = radius_mean, y = diagnosis)) +
+  geom_point() +
+  labs(title = '',
+       x = '',
+       y = ' ') + 
+  geom_smooth(method = 'glm', method.args = list(family = 'binomial')) +
+  theme(plot.title = element_text(hjust = 0.5), 
+        panel.background = element_blank(), 
+        axis.line = element_line(linewidth = 2, colour = "grey")
+        )
+  
+```
+
+
+
+
+
+
+
+
+
+
