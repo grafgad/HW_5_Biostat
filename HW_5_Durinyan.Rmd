@@ -7,8 +7,6 @@ date: "2024-04-08"
 ```{r}
 library(tidyverse)
 library(ggplot2)
-library(lme4)
-library(lmerTest)
 library(car)
 library(survival)
 library(ggsurvfit)
@@ -119,7 +117,7 @@ ggplot(data, aes(x = symmetry_mean, y = radius_mean)) +
         )
 ```
 
-Имеется прямая зависимость между размером опухоли и проверяемыми переменнымия
+Имеется прямая зависимость между размером опухоли и проверяемыми переменными.
 
 
 ### Задание 2
@@ -138,7 +136,7 @@ head(data)
 model2 <- glm(diagnosis ~ radius_mean + area_mean + texture_mean, data = data, family = 'binomial')
 summary(model2)
 ```
-
+Средняя текстура имеет статистически значимую взаимосвязь с вероятностью возникновения злокачественной опухоли.
 
 
 Постройте графики. Создайте модель, которая бы прогнозировала вероятность возникновения злокачественной опухоли от всех трех перечисленных факторов.
@@ -150,18 +148,48 @@ ggplot(data, aes(x = radius_mean, y = diagnosis)) +
        x = '',
        y = ' ') + 
   geom_smooth(method = 'glm', method.args = list(family = 'binomial')) +
-  theme(plot.title = element_text(hjust = 0.5), 
+  labs(title = 'Вероятность малигнизации в зависимости от среднего радиуса',
+       x = 'Средний радиус',
+       y = 'Вероятность злокачественной опухоли') +
+    theme(plot.title = element_text(hjust = 0.5), 
         panel.background = element_blank(), 
         axis.line = element_line(linewidth = 2, colour = "grey")
         )
-  
 ```
 
 
+```{r}
+ggplot(data, aes(x = area_mean, y = diagnosis)) +
+  geom_point() +
+  labs(title = '',
+       x = '',
+       y = ' ') + 
+  geom_smooth(method = 'glm', method.args = list(family = 'binomial')) +
+  labs(title = 'Вероятность малигнизации в зависимости от средней площади',
+       x = 'Средняя площадь',
+       y = 'Вероятность злокачественной опухоли') +
+    theme(plot.title = element_text(hjust = 0.5), 
+        panel.background = element_blank(), 
+        axis.line = element_line(linewidth = 2, colour = "grey")
+        )
+```
 
 
-
-
+```{r}
+ggplot(data, aes(x = texture_mean, y = diagnosis)) +
+  geom_point() +
+  labs(title = '',
+       x = '',
+       y = ' ') + 
+  geom_smooth(method = 'glm', method.args = list(family = 'binomial')) +
+  labs(title = 'Вероятность малигнизации в зависимости от средней текстуры',
+       x = 'Средняя текстура',
+       y = 'Вероятность злокачественной опухоли') +
+    theme(plot.title = element_text(hjust = 0.5), 
+        panel.background = element_blank(), 
+        axis.line = element_line(linewidth = 2, colour = "grey")
+        )
+```
 
 
 
